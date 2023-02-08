@@ -1,0 +1,15 @@
+FROM node:18.7.0
+COPY . /APP
+COPY ./package.json /APP
+WORKDIR /APP
+RUN npm install -g pnpm && \
+    pnpm install && \
+    pnpm build && \
+    cp ./dist/apps/back ./dist/ -r && \
+    rm -rf ./dist/apps && \
+    rm -rf ./apps/micro-service && \
+    rm -rf ./apps/pic
+ENV REIDS_HOST=172.18.0.4
+ENV MONGO_PATH=mongodb://127.18.0.5:27017/
+EXPOSE 3000
+CMD ["node", "./dist/back/main.js"]
