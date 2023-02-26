@@ -1,22 +1,24 @@
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Body, Controller, Post, Put } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserLoginDTO, UserRegisterDTO } from '../dto/user.dto';
 import { AuthService } from './auth.service';
-import { ApiResponse as AResponse, userAction } from '../utils/response';
-
-@ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
-  constructor(private readonly service: AuthService) {}
+  constructor(
+    private readonly service: AuthService,
+    private readonly amqpConnection: AmqpConnection,
+  ) {}
   @Post('/')
-  @ApiResponse({
-    type: AResponse<userAction>,
-  })
   async Login(@Body() body: UserLoginDTO) {
     return await this.service.login(body);
   }
   @Put('/')
   async register(@Body() body: UserRegisterDTO) {
-    return await this.service.register(body);
+    const profile = await this.amqpConnection.request({
+      exchange: 'system.db',
+      routingKey: 'user.register',
+      payload: body,
+    });
+    return profile;
   }
 }

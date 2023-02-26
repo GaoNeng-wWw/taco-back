@@ -1,4 +1,4 @@
-import { BasicUserField } from '../interface/Model/user';
+import { BasicUserField } from '@common/interface/Model/user';
 import User from './User';
 
 export default class UserFactory {

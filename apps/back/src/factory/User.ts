@@ -1,4 +1,4 @@
-import { UserInfo, BasicUserField } from '../interface/Model/user';
+import { UserInfo, BasicUserField } from '@common/interface/Model/user';
 
 export default class User implements BasicUserField {
   tid: string;

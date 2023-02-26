@@ -12,18 +12,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
-    const message = exception.message;
     const exceptionResponse: any = exception.getResponse();
-    let validatorMessage = exceptionResponse;
+    const validatorMessage = exceptionResponse.message;
     if (typeof validatorMessage === 'object') {
-      validatorMessage =
-        exceptionResponse.message instanceof Array
-          ? exceptionResponse.message[0]
-          : validatorMessage.message;
+      exceptionResponse.message = exceptionResponse.message[0];
     }
-    response.status(status).json({
-      code: status,
-      message: validatorMessage || message,
-    });
+    exceptionResponse.error = undefined;
+    response.status(status).json(exceptionResponse);
   }
 }

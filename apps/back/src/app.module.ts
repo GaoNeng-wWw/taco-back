@@ -1,45 +1,73 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { MongooseModule, MongooseModuleFactoryOptions } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { FriendsModule } from './friends/friends.module';
-import { jwtConstants } from './auth/constants';
+import { jwtConstants } from '../../../server-common/constants';
 import { JWTStreagy } from './auth/jwt.streagy';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { ChatGateway } from './gateway/chat.gateway';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import configuration from '@common/config';
+import { TokenValidityCheckMiddleware } from './middleware/token-validity-check.middleware';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './env/.dev.env',
+      load: [configuration],
     }),
-    MongooseModule.forRoot(`${process.env.MONGO_PATH}`),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (
+        configService: ConfigService,
+      ): MongooseModuleFactoryOptions => {
+        const { host, port, db, auth_db, user, password } = configService.get<{
+          host: string;
+          port: number;
+          db: string;
+          auth_db: string;
+          user: string;
+          password: string;
+        }>('db');
+        console.log(
+          `mongodb://${user}:${password}@${host}:${port}/${db}${auth_db}`,
+        );
+        return {
+          uri: `mongodb://${user}:${password}@${host}:${port}/${db}${auth_db}`,
+        } as MongooseModuleFactoryOptions;
+      },
+    }),
     RedisModule.forRootAsync({
-      useFactory: () => {
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
         return {
           config: [
             {
-              host: process.env.REDIS_HOST,
-              port: Number(process.env.REDIS_PORT),
-              db: Number(process.env.REDIS_DB),
-              password: process.env.REDIS_PASSWD,
+              host: configService.get('redis.host'),
+              port: configService.get('redis.port'),
+              db: configService.get('redis.db'),
+              password: configService.get('redis.password'),
             },
             {
               namespace: 'sub',
-              host: process.env.REDIS_HOST,
-              port: Number(process.env.REDIS_PORT),
-              db: Number(process.env.REDIS_DB),
-              password: process.env.REDIS_PASSWD,
+              host: configService.get('redis.host'),
+              port: configService.get('redis.port'),
+              db: configService.get('redis.db'),
+              password: configService.get('redis.password'),
             },
             {
               namespace: 'pub',
-              host: process.env.REDIS_HOST,
-              port: Number(process.env.REDIS_PORT),
-              db: Number(process.env.REDIS_DB),
-              password: process.env.REDIS_PASSWD,
+              host: configService.get('redis.host'),
+              port: configService.get('redis.port'),
+              db: configService.get('redis.db'),
+              password: configService.get('redis.password'),
             },
           ],
         };
@@ -48,9 +76,21 @@ import { ChatGateway } from './gateway/chat.gateway';
     AuthModule,
     FriendsModule,
     JwtModule.register(jwtConstants),
+    ClientsModule.register([
+      {
+        name: 'Pusher',
+        transport: Transport.TCP,
+      },
+    ]),
   ],
-  controllers: [AppController],
-  providers: [JWTStreagy, AppService, ChatGateway],
+  controllers: [],
+  providers: [JWTStreagy],
 })
-export class AppModule {}
-console.log(process.env.MONGO_PATH);
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(TokenValidityCheckMiddleware)
+      .exclude({ path: 'auth', method: RequestMethod.ALL })
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

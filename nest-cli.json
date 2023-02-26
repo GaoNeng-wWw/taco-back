@@ -6,8 +6,12 @@
   "root": "apps/back",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true,
-    "tsConfigPath": "apps/back/tsconfig.app.json"
+    "tsConfigPath": "apps/back/tsconfig.app.json",
+    "assets": [
+      "./server-common/**/*.ts"
+    ],
+    "watchAssets": true,
+    "webpack": true
   },
   "generateOptions": {
     "flat": true
@@ -22,13 +26,13 @@
         "tsConfigPath": "apps/back/tsconfig.app.json"
       }
     },
-    "micro-service": {
+    "transfer": {
       "type": "application",
-      "root": "apps/micro-service",
+      "root": "apps/transfer",
       "entryFile": "main",
-      "sourceRoot": "apps/micro-service/src",
+      "sourceRoot": "apps/transfer/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/micro-service/tsconfig.app.json"
+        "tsConfigPath": "apps/transfer/tsconfig.app.json"
       }
     }
   }

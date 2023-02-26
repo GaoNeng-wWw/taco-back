@@ -7,7 +7,7 @@ import {
   Protocol,
   State,
   userAction,
-} from './utils/response';
+} from '@common/utils/response';
 
 @Catch(WsException)
 export class WsExceptionFilter<T> extends BaseWsExceptionFilter {
