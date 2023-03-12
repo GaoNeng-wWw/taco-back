@@ -5,16 +5,13 @@
   "monorepo": true,
   "root": "apps/back",
   "compilerOptions": {
-    "deleteOutDir": true,
     "tsConfigPath": "apps/back/tsconfig.app.json",
     "assets": [
-      "./server-common/**/*.ts"
+      "./server-common/**/*.ts",
+      "./server-common/**/*.yaml",
+      "./server-common/**/*.*.env"
     ],
-    "watchAssets": true,
-    "webpack": true
-  },
-  "generateOptions": {
-    "flat": true
+    "watchAssets": true
   },
   "projects": {
     "back": {

@@ -32,6 +32,20 @@
       ],
       "@lib/rabbitmq/*": [
         "libs/rabbitmq/src/*"
+      ],
+      "@app/config": [
+        "libs/config/src",
+        "libs/config/src"
+      ],
+      "@app/config/*": [
+        "libs/config/src/*",
+        "libs/config/src/*"
+      ],
+      "@app/redis": [
+        "libs/redis/src"
+      ],
+      "@app/redis/*": [
+        "libs/redis/src/*"
       ]
     }
   }

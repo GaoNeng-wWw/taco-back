@@ -15,7 +15,7 @@ db:
   host: 127.0.0.1
   port: 27017
   db: Taco
-  auth_db: ?authMechanism=DEFAULT&authSource=admin
+  auth_db: \?authMechanism=DEFAULT&authSource=admin
   user: root
   password: root
 jwt:
@@ -23,7 +23,6 @@ jwt:
   issuer: Taco-issuer
   expire: 1y
 rabbitmq:
-  uri: amqp://gust:guest@localhost:5672
   notice:
     exchange: system.notice
     routing_key:

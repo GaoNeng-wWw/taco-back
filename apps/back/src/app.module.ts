@@ -10,7 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { FriendsModule } from './friends/friends.module';
 import { jwtConstants } from '../../../server-common/constants';
 import { JWTStreagy } from './auth/jwt.streagy';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import configuration from '@common/config';
@@ -22,52 +22,35 @@ import { TokenValidityCheckMiddleware } from './middleware/token-validity-check.
       load: [configuration],
     }),
     MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (
-        configService: ConfigService,
-      ): MongooseModuleFactoryOptions => {
-        const { host, port, db, auth_db, user, password } = configService.get<{
-          host: string;
-          port: number;
-          db: string;
-          auth_db: string;
-          user: string;
-          password: string;
-        }>('db');
-        console.log(
-          `mongodb://${user}:${password}@${host}:${port}/${db}${auth_db}`,
-        );
+      useFactory: (): MongooseModuleFactoryOptions => {
         return {
-          uri: `mongodb://${user}:${password}@${host}:${port}/${db}${auth_db}`,
+          uri: `${process.env.MONGO_PATH}`,
         } as MongooseModuleFactoryOptions;
       },
     }),
     RedisModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
+      useFactory: () => {
         return {
           config: [
             {
-              host: configService.get('redis.host'),
-              port: configService.get('redis.port'),
-              db: configService.get('redis.db'),
-              password: configService.get('redis.password'),
+              host: process.env.REDIS_HOST,
+              port: Number(process.env.REDIS_PORT),
+              db: Number(process.env.REDIS_DB),
+              password: process.env.REDIS_PASSWD,
             },
             {
               namespace: 'sub',
-              host: configService.get('redis.host'),
-              port: configService.get('redis.port'),
-              db: configService.get('redis.db'),
-              password: configService.get('redis.password'),
+              host: process.env.REDIS_HOST,
+              port: Number(process.env.REDIS_PORT),
+              db: Number(process.env.REDIS_DB),
+              password: process.env.REDIS_PASSWD,
             },
             {
               namespace: 'pub',
-              host: configService.get('redis.host'),
-              port: configService.get('redis.port'),
-              db: configService.get('redis.db'),
-              password: configService.get('redis.password'),
+              host: process.env.REDIS_HOST,
+              port: Number(process.env.REDIS_PORT),
+              db: Number(process.env.REDIS_DB),
+              password: process.env.REDIS_PASSWD,
             },
           ],
         };

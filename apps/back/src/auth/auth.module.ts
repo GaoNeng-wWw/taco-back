@@ -24,7 +24,7 @@ import { FriendsSchema } from '@common/schema/friends';
     ]),
     PassportModule,
     RabbitMQModule.forRoot(RabbitMQModule, {
-      uri: 'amqp://guest:guest@localhost:5672',
+      uri: process.env.RABBITMQ_PATH,
       enableControllerDiscovery: true,
       exchanges: [
         {

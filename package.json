@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build back;nest build micro-service ",
+    "build": "node ./cli/build.js ",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "node ./cli/dev.js",
@@ -69,9 +69,12 @@
     "@typescript-eslint/parser": "^5.0.0",
     "concurrently": "^7.6.0",
     "dotenv": "^16.0.3",
+    "esbuild": "^0.17.11",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "filemanager-webpack-plugin": "^8.0.0",
+    "fork-ts-checker-webpack-plugin": "^7.3.0",
     "jest": "28.0.3",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
@@ -108,7 +111,9 @@
     "moduleNameMapper": {
       "^@app/dto(|/.*)$": "<rootDir>/libs/dto/src/$1",
       "^@app/rabbitmq(|/.*)$": "<rootDir>/libs/rabbitmq/src/$1",
-      "^@lib/rabbitmq(|/.*)$": "<rootDir>/libs/rabbitmq/src/$1"
+      "^@lib/rabbitmq(|/.*)$": "<rootDir>/libs/rabbitmq/src/$1",
+      "^@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
+      "^@app/redis(|/.*)$": "<rootDir>/libs/redis/src/$1"
     }
   }
 }

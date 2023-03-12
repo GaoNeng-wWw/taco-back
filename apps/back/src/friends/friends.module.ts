@@ -13,7 +13,7 @@ import { FriendsConsumerService } from './consumer/friends.consumer.service';
 @Module({
   imports: [
     RabbitMQModule.forRoot(RabbitMQModule, {
-      uri: 'amqp://guest:guest@localhost:5672',
+      uri: process.env.RABBITMQ_PATH,
       enableControllerDiscovery: true,
     }),
     MongooseModule.forFeature([
