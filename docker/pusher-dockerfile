@@ -10,4 +10,5 @@ ENV RABBITMQ_PATH  ''
 RUN npm install -g pnpm && \
     pnpm install && \
     pnpm build
+EXPOSE 3001
 CMD ["node", "./dist/apps/transfer/apps/transfer/src/main.js"]
