@@ -49,6 +49,8 @@
     "socket.io": "^4.5.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.4.2",
+    "@commitlint/config-conventional": "^17.4.2",
     "@golevelup/nestjs-rabbitmq": "^3.4.0",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/jwt": "^8.0.1",
@@ -75,6 +77,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "filemanager-webpack-plugin": "^8.0.0",
     "fork-ts-checker-webpack-plugin": "^7.3.0",
+    "husky": "^8.0.3",
     "jest": "28.0.3",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
