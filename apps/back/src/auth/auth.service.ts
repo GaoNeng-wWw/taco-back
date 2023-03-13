@@ -17,6 +17,7 @@ import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { friendsModel } from '@common/schema/friends';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
+import { TokenPayload } from '@common/interface/strcutre/token';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +31,7 @@ export class AuthService {
     return this.jwt.sign(body, jwtConstants);
   }
   verify(token: string) {
-    return this.jwt.verify(token, jwtConstants);
+    return this.jwt.verify(token, jwtConstants) as TokenPayload;
   }
   getToken(dto: { tid: string; password: string }) {
     const { tid, password } = dto;

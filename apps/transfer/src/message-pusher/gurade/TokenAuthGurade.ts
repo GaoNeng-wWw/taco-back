@@ -10,6 +10,7 @@ import {
   userAction,
 } from '../../../../../server-common/utils/response';
 import { jwtConstants } from '@common/constants';
+import { TokenPayload } from '@common/interface/strcutre/token';
 
 @Injectable()
 export class TokenAuthGurade implements CanActivate {
@@ -25,11 +26,8 @@ export class TokenAuthGurade implements CanActivate {
       res.fail(State.FAIL_BAD_REQUEST);
     }
     try {
-      const verifyInfo = this.jwt.verify(token, jwtConstants);
-      if (verifyInfo.tid === Number(tid)) {
-        return true;
-      }
-      throw new Error('Token Error');
+      this.jwt.verify(token, jwtConstants);
+      return true;
     } catch (e) {
       if (e.name === 'TokenExpiredError') {
         res.fail(State.FAIL_TOKEN_EXPIRED);

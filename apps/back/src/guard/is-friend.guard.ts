@@ -7,7 +7,7 @@ import {
 import { Request } from 'express';
 import { jwtConstants } from '@common/constants';
 import { JwtService } from '@nestjs/jwt';
-import { tokenPayload } from '@common/interface/strcutre/token';
+import { TokenPayload } from '@common/interface/strcutre/token';
 import { AddFriendDto } from '../friends/dto/add-friend';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -31,7 +31,7 @@ export class IsFriend implements CanActivate {
     const ctx = context.switchToHttp();
     const req = ctx.getRequest<Request>();
     const token = req.headers.authorization.split(' ')[1];
-    const vertifyInfo: tokenPayload = this.jwt.verify(token, jwtConstants);
+    const vertifyInfo: TokenPayload = this.jwt.verify(token, jwtConstants);
     const payload: AddFriendDto = body;
     const res = new ApiResponse(
       Protocol.HTTP,

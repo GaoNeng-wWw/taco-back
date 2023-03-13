@@ -21,6 +21,7 @@ import { jwtConstants } from '@common/constants';
 import { ConfigService } from '@nestjs/config';
 import { INoticePayload } from '@common/interface/notice.interface';
 import { RequestPayload } from '@common/interface/request.interface';
+import { TokenPayload } from '@common/interface/strcutre/token';
 
 @Injectable()
 export class MessagePusherService {
@@ -37,13 +38,21 @@ export class MessagePusherService {
     private config: ConfigService,
   ) {}
   async group(client: Socket, payload: GroupMessageDTO) {
+    const res = new ApiResponse(Protocol.WS, Layer.CHAT, chatKind.GROUP);
     const token = client.handshake.query.token ?? client.handshake.auth.token;
-    const decode = this.jwt.decode(token, { json: true }) as {
-      [key: string]: any;
-    };
+    const decode = this.jwt.decode(token, { json: true }) as TokenPayload;
     const sender = decode.tid;
     payload['sender'] = sender;
     client.broadcast.to(payload.gid).emit('group', payload);
+    payload.timestamp = new Date().getTime().toString();
+    const { gid } = payload;
+    const historyNumber = await this.redis.scard(`history:group:${gid}`);
+    if (historyNumber < 1000) {
+      await this.redis.rpush(`history:group:${gid}`, JSON.stringify(payload));
+      res.updateMessage('SEND_SUCCESS');
+    } else {
+      const historyItem = await this.redis.lpop(`history:group:${gid}`);
+    }
   }
   async p2p(client: Socket, payload: p2pMessageDTO) {
     const { reciver } = payload;

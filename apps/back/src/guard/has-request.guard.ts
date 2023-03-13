@@ -1,6 +1,6 @@
 import { jwtConstants } from '@common/constants';
 import { RequestPayload } from '@common/interface/request.interface';
-import { tokenPayload } from '@common/interface/strcutre/token';
+import { TokenPayload } from '@common/interface/strcutre/token';
 import { User, userModel } from '@common/schema/user';
 import {
   ApiResponse,
@@ -36,7 +36,7 @@ export class HasRequest implements CanActivate {
     const ctx = context.switchToHttp();
     const req = ctx.getRequest<Request>();
     const token = req.headers.authorization.split(' ')?.[1];
-    const vertifyInfo: tokenPayload = this.jwt.verify(token, jwtConstants);
+    const vertifyInfo: TokenPayload = this.jwt.verify(token, jwtConstants);
     const payload: CommonRequestActionDto = body;
     const res = new ApiResponse(
       Protocol.HTTP,

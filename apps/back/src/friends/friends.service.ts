@@ -2,7 +2,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { tokenPayload } from '@common/interface/strcutre/token';
+import { TokenPayload } from '@common/interface/strcutre/token';
 import {
   ApiResponse,
   friendAction,
@@ -44,7 +44,7 @@ export class FriendsService {
     nid: string,
     token: string,
   ): Promise<INoticePayload<any, any>> {
-    const tokenPayload: tokenPayload = this.jwt.verify(token, jwtConstants);
+    const tokenPayload: TokenPayload = this.jwt.verify(token, jwtConstants);
     const { tid } = tokenPayload;
     const notice = await this.redis.hget(`notice:${tid}`, nid);
     return JSON.parse(notice);
@@ -53,7 +53,7 @@ export class FriendsService {
     rid: string,
     token: string,
   ): Promise<RequestPayload<any>> {
-    const tokenPayload: tokenPayload = this.jwt.verify(token, jwtConstants);
+    const tokenPayload: TokenPayload = this.jwt.verify(token, jwtConstants);
     const { tid } = tokenPayload;
     let request: RequestPayload<any> = JSON.parse(
       await this.redis.hget(`request:${tid}`, rid),
@@ -74,7 +74,7 @@ export class FriendsService {
     return request;
   }
   async friendList(token: string, hash: string) {
-    const tokenPayload: tokenPayload = this.jwt.verify(token, jwtConstants);
+    const tokenPayload: TokenPayload = this.jwt.verify(token, jwtConstants);
     const { tid } = tokenPayload;
     const res = new ApiResponse(
       Protocol.HTTP,
@@ -150,7 +150,7 @@ export class FriendsService {
     }
   }
   async addFriendReqeust(dto: AddFriendDto, token: string) {
-    const tokenPayload: tokenPayload = this.jwt.verify(token, jwtConstants);
+    const tokenPayload: TokenPayload = this.jwt.verify(token, jwtConstants);
     const { tid, message } = dto;
     const request = new Request()
       .setScope('friend')
@@ -183,7 +183,7 @@ export class FriendsService {
     return res.getResponse();
   }
   async deleteFriendRequest(dto: RemoveFriend, token: string) {
-    const tokenPayload: tokenPayload = this.jwt.verify(token, jwtConstants);
+    const tokenPayload: TokenPayload = this.jwt.verify(token, jwtConstants);
     const { tid } = tokenPayload;
     const requests = new Request<'remove'>()
       .setScope('friend')
@@ -299,7 +299,7 @@ export class FriendsService {
     return res.getResponse();
   }
   async getFriendRequest(token: string) {
-    const verifyInfo: tokenPayload = this.jwt.verify(token, jwtConstants);
+    const verifyInfo: TokenPayload = this.jwt.verify(token, jwtConstants);
     const { tid } = verifyInfo;
     let notices = await this.redis.hgetall(`request:${tid}`);
     if (isEmpty(notices)) {

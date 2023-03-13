@@ -30,6 +30,7 @@ import { FriendsSchema } from '@common/schema/friends';
         {
           name: 'system.db',
           createExchangeIfNotExists: true,
+          type: 'direct',
         },
       ],
     }),

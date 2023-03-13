@@ -42,10 +42,24 @@
         "libs/config/src/*"
       ],
       "@app/redis": [
+        "libs/redis/src",
         "libs/redis/src"
       ],
       "@app/redis/*": [
+        "libs/redis/src/*",
         "libs/redis/src/*"
+      ],
+      "@app/db": [
+        "libs/db/src"
+      ],
+      "@app/db/*": [
+        "libs/db/src/*"
+      ],
+      "@app/jwt": [
+        "libs/jwt/src"
+      ],
+      "@app/jwt/*": [
+        "libs/jwt/src/*"
       ]
     }
   }

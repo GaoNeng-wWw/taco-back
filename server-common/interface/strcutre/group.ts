@@ -8,7 +8,6 @@ export type groupCommands =
 export type groupRole = 'member' | 'manager' | 'master';
 
 export interface groupMessageStructure {
-  sender: string;
   gid: string;
   timestampe: string;
   messages: string[];

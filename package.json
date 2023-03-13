@@ -113,7 +113,9 @@
       "^@app/rabbitmq(|/.*)$": "<rootDir>/libs/rabbitmq/src/$1",
       "^@lib/rabbitmq(|/.*)$": "<rootDir>/libs/rabbitmq/src/$1",
       "^@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
-      "^@app/redis(|/.*)$": "<rootDir>/libs/redis/src/$1"
+      "^@app/redis(|/.*)$": "<rootDir>/libs/redis/src/$1",
+      "^@app/db(|/.*)$": "<rootDir>/libs/db/src/$1",
+      "^@app/jwt(|/.*)$": "<rootDir>/libs/jwt/src/$1"
     }
   }
 }

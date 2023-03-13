@@ -1,5 +1,5 @@
 import { jwtConstants } from '@common/constants';
-import { tokenPayload } from '@common/interface/strcutre/token';
+import { TokenPayload } from '@common/interface/strcutre/token';
 import { userModel } from '@common/schema/user';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -22,7 +22,7 @@ export class InBlackList implements CanActivate {
     const ctx = context.switchToHttp();
     const req = ctx.getRequest<Request>();
     const token = req.headers.authorization.split(' ')?.[1];
-    const vertifyInfo: tokenPayload = this.jwt.verify(token, jwtConstants);
+    const vertifyInfo: TokenPayload = this.jwt.verify(token, jwtConstants);
     const payload: AddFriendDto = body;
     return new Promise((resolve) => {
       this.userModel

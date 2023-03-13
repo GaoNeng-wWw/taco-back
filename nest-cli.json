@@ -9,7 +9,8 @@
     "assets": [
       "./server-common/**/*.ts",
       "./server-common/**/*.yaml",
-      "./server-common/**/*.*.env"
+      "./server-common/**/*.*.env",
+      "**/*.env"
     ],
     "watchAssets": true
   },
@@ -30,6 +31,33 @@
       "sourceRoot": "apps/transfer/src",
       "compilerOptions": {
         "tsConfigPath": "apps/transfer/tsconfig.app.json"
+      }
+    },
+    "db": {
+      "type": "library",
+      "root": "libs/db",
+      "entryFile": "index",
+      "sourceRoot": "libs/db/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/db/tsconfig.lib.json"
+      }
+    },
+    "redis": {
+      "type": "library",
+      "root": "libs/redis",
+      "entryFile": "index",
+      "sourceRoot": "libs/redis/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/redis/tsconfig.lib.json"
+      }
+    },
+    "jwt": {
+      "type": "library",
+      "root": "libs/jwt",
+      "entryFile": "index",
+      "sourceRoot": "libs/jwt/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/jwt/tsconfig.lib.json"
       }
     }
   }
