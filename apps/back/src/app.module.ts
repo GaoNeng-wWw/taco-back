@@ -15,47 +15,16 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import configuration from '@common/config';
 import { TokenValidityCheckMiddleware } from './middleware/token-validity-check.middleware';
+import { DbModule } from '@app/db';
+import { Redis } from '@app/redis';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
     }),
-    MongooseModule.forRootAsync({
-      useFactory: (): MongooseModuleFactoryOptions => {
-        return {
-          uri: `${process.env.MONGO_PATH}`,
-        } as MongooseModuleFactoryOptions;
-      },
-    }),
-    RedisModule.forRootAsync({
-      useFactory: () => {
-        return {
-          config: [
-            {
-              host: process.env.REDIS_HOST,
-              port: Number(process.env.REDIS_PORT),
-              db: Number(process.env.REDIS_DB),
-              password: process.env.REDIS_PASSWD,
-            },
-            {
-              namespace: 'sub',
-              host: process.env.REDIS_HOST,
-              port: Number(process.env.REDIS_PORT),
-              db: Number(process.env.REDIS_DB),
-              password: process.env.REDIS_PASSWD,
-            },
-            {
-              namespace: 'pub',
-              host: process.env.REDIS_HOST,
-              port: Number(process.env.REDIS_PORT),
-              db: Number(process.env.REDIS_DB),
-              password: process.env.REDIS_PASSWD,
-            },
-          ],
-        };
-      },
-    }),
+    DbModule,
+    Redis,
     AuthModule,
     FriendsModule,
     JwtModule.register(jwtConstants),
