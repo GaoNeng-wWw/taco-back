@@ -18,36 +18,29 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@common/*": [
-        "./server-common/*"
+      "@app/response": [
+        "libs/response/src"
       ],
-      "@app/rabbitmq": [
-        "libs/rabbitmq/src"
+      "@app/response/*": [
+        "libs/response/src/*"
       ],
-      "@app/rabbitmq/*": [
-        "libs/rabbitmq/src/*"
+      "@app/errors": [
+        "libs/errors/src"
       ],
-      "@lib/rabbitmq": [
-        "libs/rabbitmq/src"
+      "@app/errors/*": [
+        "libs/errors/src/*"
       ],
-      "@lib/rabbitmq/*": [
-        "libs/rabbitmq/src/*"
+      "@app/cache": [
+        "libs/cache/src"
+      ],
+      "@app/cache/*": [
+        "libs/cache/src/*"
       ],
       "@app/config": [
-        "libs/config/src",
         "libs/config/src"
       ],
       "@app/config/*": [
-        "libs/config/src/*",
         "libs/config/src/*"
-      ],
-      "@app/redis": [
-        "libs/redis/src",
-        "libs/redis/src"
-      ],
-      "@app/redis/*": [
-        "libs/redis/src/*",
-        "libs/redis/src/*"
       ],
       "@app/db": [
         "libs/db/src"
@@ -55,11 +48,109 @@
       "@app/db/*": [
         "libs/db/src/*"
       ],
+      "@app/schemas": [
+        "libs/schemas/src"
+      ],
+      "@app/schemas/*": [
+        "libs/schemas/src/*"
+      ],
+      "@app/interface": [
+        "libs/interface/src"
+      ],
+      "@app/interface/*": [
+        "libs/interface/src/*"
+      ],
+      "@app/model-definition": [
+        "libs/model-definition/src"
+      ],
+      "@app/model-definition/*": [
+        "libs/model-definition/src/*"
+      ],
+      "@app/mock": [
+        "libs/mock/src"
+      ],
+      "@app/mock/*": [
+        "libs/mock/src/*"
+      ],
       "@app/jwt": [
         "libs/jwt/src"
       ],
       "@app/jwt/*": [
         "libs/jwt/src/*"
+      ],
+      "@app/api-response": [
+        "libs/api-response/src"
+      ],
+      "@app/api-response/*": [
+        "libs/api-response/src/*"
+      ],
+      "@app/validation-pipe": [
+        "libs/validation-pipe/src"
+      ],
+      "@app/validation-pipe/*": [
+        "libs/validation-pipe/src/*"
+      ],
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
+      ],
+      "@app/common/dto-middleware": [
+        "libs/common/dto-middleware/src"
+      ],
+      "@app/common/dto-middleware/*": [
+        "libs/common/dto-middleware/src/*"
+      ],
+      "@app/factory": [
+        "libs/factory/src"
+      ],
+      "@app/factory/*": [
+        "libs/factory/src/*"
+      ],
+      "@app/mq": [
+        "libs/mq/src",
+        "libs/mq/src"
+      ],
+      "@app/mq/*": [
+        "libs/mq/src/*",
+        "libs/mq/src/*"
+      ],
+      "@app/middleware": [
+        "libs/middleware/src"
+      ],
+      "@app/middleware/*": [
+        "libs/middleware/src/*"
+      ],
+      "@app/keypair": [
+        "libs/keypair/src"
+      ],
+      "@app/keypair/*": [
+        "libs/keypair/src/*"
+      ],
+      "@app/status": [
+        "libs/status/src"
+      ],
+      "@app/status/*": [
+        "libs/status/src/*"
+      ],
+      "@app/pusher-event": [
+        "libs/pusher-event/src"
+      ],
+      "@app/pusher-event/*": [
+        "libs/pusher-event/src/*"
+      ],
+      "@app/redis-utils": [
+        "libs/redis-utils/src"
+      ],
+      "@app/redis-utils/*": [
+        "libs/redis-utils/src/*"
+      ],
+      "@app/mqtt": [
+        "libs/mqtt/src"
+      ],
+      "@app/mqtt/*": [
+        "libs/mqtt/src/*"
       ]
     }
   }

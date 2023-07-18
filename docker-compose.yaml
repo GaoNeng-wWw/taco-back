@@ -3,18 +3,24 @@ services:
   redis:
     image: bitnami/redis:latest
     environment:
-      - REIDS_PASSWORD=123456789Sd!
-      - ALLOW_EMPTY_PASSWORD=yes
+      REIDS_PASSWORD: 123456789Sd!
+      ALLOW_EMPTY_PASSWORD: yes
+    ports:
+      - '6379:6379'
+    mem_limit: 256M
   mongo:
     image: bitnami/mongodb:latest
     environment:
-      - MONGODB_ROOT_PASSWORD=123456789Sd!
-      - MONGODB_REPLICA_SET_KEY=123456789Sd
+      MONGODB_ROOT_PASSWORD: 123456789Sd!
+      MONGODB_REPLICA_SET_KEY: 123456789Sd
+    ports:
+      - '27017:27017'
+    mem_limit: 256M
   rabbitmq:
     image: rabbitmq:management
-    # environment:
-    #   - RABBITMQ_SECURE_PASSWORD=no
-    #   - RABBITMQ_LOGS=-
+    environment:
+      RABBITMQ_SECURE_PASSWORD: no
+      RABBITMQ_LOGS: "-"
     ports:
       - '4369:4369'
       - '5551:5551'
@@ -22,21 +28,9 @@ services:
       - '5672:5672'
       - '25672:25672'
       - '15672:15672'
-  restful:
-    build:
-        context: .
-        dockerfile: ./docker/restful-dockerfile
+    mem_limit: 256M
+  meili:
+    image: getmeili/meilisearch
     ports:
-        - '3000:3000'
-    environment:
-        - REDIS_HOST=redis
-        - REDIS_PORT=6379
-        - REDIS_DB=1
-        - REDIS_PASSWD=123456789Sd!
-        - MONGO_PATH=mongodb://mongo:27017/Taco?authMechanism=DEFAULT&authSource=admin
-        - RABBITMQ_PATH=amqp://guest:guest@rabbitmq:5672
-
-    depends_on:
-        - redis
-        - mongo
-        - rabbitmq
+      - '7700:7700'
+    mem_limit: 256M
