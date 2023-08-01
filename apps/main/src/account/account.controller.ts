@@ -32,11 +32,11 @@ export class AccountController {
 		return this.accountService.checkAnswer(tid, question_id, dto);
 	}
 	@Patch('password')
-	async changePassword(dto: ChangePasswordDto) {
+	async changePassword(@Body() dto: ChangePasswordDto) {
 		return this.accountService.changePassWord(dto);
 	}
 	@Patch('forget')
-	async forgetPassword(dto: ForgetPasswordDto) {
+	async forgetPassword(@Body() dto: ForgetPasswordDto) {
 		return this.accountService.forgetPassword(dto);
 	}
 }

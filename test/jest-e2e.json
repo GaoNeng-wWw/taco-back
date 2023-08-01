@@ -1,0 +1,38 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": ".*\\.e2e-spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+	"^@app/response(|/.*)$": "<rootDir>/libs/response/src/$1",
+	"^@app/errors(|/.*)$": "<rootDir>/libs/errors/src/$1",
+	"^@app/cache(|/.*)$": "<rootDir>/libs/cache/src/$1",
+	"^@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
+	"^@app/db(|/.*)$": "<rootDir>/libs/db/src/$1",
+	"^@app/schemas(|/.*)$": "<rootDir>/libs/schemas/src/$1",
+	"^@app/user-module(|/.*)$": "<rootDir>/libs/user-module/src/$1",
+	"^@app/group-module(|/.*)$": "<rootDir>/libs/group-module/src/$1",
+	"^@app/counter-module(|/.*)$": "<rootDir>/libs/counter-module/src/$1",
+	"^@app/model-definition(|/.*)$": "<rootDir>/libs/model-definition/src/$1",
+	"^@app/mock(|/.*)$": "<rootDir>/libs/mock/src/$1",
+	"^@app/jwt(|/.*)$": "<rootDir>/libs/jwt/src/$1",
+	"^@app/api-response(|/.*)$": "<rootDir>/libs/api-response/src/$1",
+	"^@app/validation-pipe(|/.*)$": "<rootDir>/libs/validation-pipe/src/$1",
+	"^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+	"^@app/interface(|/.*)$": "<rootDir>/libs/interface/src/$1",
+	"^@app/common/dto-middleware(|/.*)$": "<rootDir>/libs/common/dto-middleware/src/$1",
+	"^@app/factory(|/.*)$": "<rootDir>/libs/factory/src/$1",
+	"^@app/mq(|/.*)$": "<rootDir>/libs/mq/src/$1",
+	"^@app/middleware(|/.*)$": "<rootDir>/libs/middleware/src/$1",
+	"^@app/keypair(|/.*)$": "<rootDir>/libs/keypair/src/$1",
+	"^@app/status(|/.*)$": "<rootDir>/libs/status/src/$1",
+	"^@app/pusher-event(|/.*)$": "<rootDir>/libs/pusher-event/src/$1",
+	"^@app/redis-utils(|/.*)$": "<rootDir>/libs/redis-utils/src/$1",
+	"^./mqtt(|/.*)$": "<rootDir>/libs/mqtt/src/$1",
+	"^@app/mqtt(|/.*)$": "<rootDir>/libs/mqtt/src/$1"
+  },
+  "coverageDirectory": "./e2e-coverage"
+}

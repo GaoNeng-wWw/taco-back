@@ -118,23 +118,26 @@ export class AccountService {
 		return true;
 	}
 	async changePassWord(dto: ChangePasswordDto) {
+		console.log(dto);
 		const { tid, old_pwd, new_pwd } = dto;
-		await this.userModel.findOneAndUpdate(
-			{
-				tid: tid,
-				password: old_pwd,
-			},
-			{
-				$set: {
-					password: createHash('sha256')
-						.update(new_pwd)
-						.digest('hex'),
+		await this.userModel
+			.findOneAndUpdate(
+				{
+					tid: tid,
+					password: old_pwd,
 				},
-			},
-			{
-				new: true,
-			},
-		);
+				{
+					$set: {
+						password: createHash('sha256')
+							.update(new_pwd)
+							.digest('hex'),
+					},
+				},
+				{
+					new: true,
+				},
+			)
+			.exec();
 		const tokenNameSpace = this.TOKEN_NAMESPACE(tid);
 		await this.redis.del(tokenNameSpace);
 		return true;

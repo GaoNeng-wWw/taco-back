@@ -9,6 +9,13 @@ import { ConfigModule, ConfigService } from '@app/config';
 			inject: [ConfigService],
 			useFactory: (service: ConfigService) => ({
 				uri: service.get('global.rabbitmq.uri'),
+				exchanges: [
+					{
+						name: 'system.call',
+						type: 'direct',
+						createExchangeIfNotExists: true,
+					},
+				],
 			}),
 		}),
 	],

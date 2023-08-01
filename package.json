@@ -18,8 +18,8 @@
     "test:watch": "cross-env NODE_ENV=test jest --watch",
     "test:cov": "jest --clearCache && cross-env NODE_ENV=test jest --coverage --force-exit --detectOpenHandles",
     "test:debug": "cross-env NODE_ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest",
-    "test:e2e-main": "cross-env NODE_ENV=test jest --config ./apps/main/test/jest-e2e.json",
-    "test:e2e-auth": "cross-env NODE_ENV=test jest --config ./apps/auth/test/jest-e2e.json"
+    "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --detectOpenHandles",
+	"test:e2e:cov": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --detectOpenHandles --force-exit"
   },
   "dependencies": {
     "@golevelup/nestjs-rabbitmq": "^3.6.1",
@@ -73,6 +73,7 @@
     "lodash": "^4.17.21",
     "mockjs": "^1.1.0",
     "prettier": "^2.3.2",
+    "redis-memory-server": "^0.7.0",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^4.7.0",
     "source-map-support": "^0.5.20",

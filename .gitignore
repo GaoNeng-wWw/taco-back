@@ -38,3 +38,7 @@ key.pri
 key.pub
 coverage
 dist
+
+docker-compose.yaml
+*-lock.yaml
+e2e-coverage
