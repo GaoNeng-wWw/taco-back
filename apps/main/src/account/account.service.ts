@@ -84,7 +84,7 @@ export class AccountService {
 		if (isEmpty(info)) {
 			throw new ServiceError(serviceErrorEnum.TID_OR_PASSWORD_ERROR);
 		}
-		return this.jwt.signObject(info);
+		return { token: await this.jwt.signObject(info) };
 	}
 	async getQuestion(tid: string): Promise<GetQuestionResponseData> {
 		const rawData = await this.questions
@@ -118,7 +118,6 @@ export class AccountService {
 		return true;
 	}
 	async changePassWord(dto: ChangePasswordDto) {
-		console.log(dto);
 		const { tid, old_pwd, new_pwd } = dto;
 		await this.userModel
 			.findOneAndUpdate(

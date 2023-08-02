@@ -15,16 +15,10 @@ export const rootRedisTestModle = async () => {
 		},
 	});
 	await server.start();
-	return RedisModule.forRootAsync({
-		useFactory: async () => {
-			return {
-				config: {
-					host: await server.getIp(),
-					port: await server.getPort(),
-				},
-			};
-		},
-	});
+	return {
+		host: await server.getIp(),
+		port: await server.getPort(),
+	};
 };
 
 export const rootMongooseTestModule = async (

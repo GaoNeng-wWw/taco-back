@@ -12,8 +12,8 @@ import {
 export class AccountController {
 	constructor(private readonly accountService: AccountService) {}
 	@Get('login')
-	login(@Body() dto: LoginDTO) {
-		return this.accountService.login(dto);
+	async login(@Body() dto: LoginDTO) {
+		return await this.accountService.login(dto);
 	}
 	@Post('register')
 	resgiter(@Body() dto: RegisterDTO) {
