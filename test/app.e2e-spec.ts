@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AccountModule } from '../apps/main/src/account/account.module';
 import { RegisterDto } from '@app/interface';
 import {
 	rootMongooseTestModule,
 	rootRedisTestModle,
 } from '@app/mock/memory-mongo';
 import { HttpResponseInterceptor } from '@app/common';
+import { AppModule } from '../apps/main/src/app.module';
 describe('main', () => {
 	let app: INestApplication;
 	let server: any;
@@ -16,7 +16,7 @@ describe('main', () => {
 			imports: [
 				rootRedisTestModle(),
 				rootMongooseTestModule(),
-				AccountModule,
+				AppModule,
 			],
 		})
 			.overrideInterceptor(HttpResponseInterceptor.name)
