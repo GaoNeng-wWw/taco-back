@@ -1,21 +1,21 @@
 version: '3.8'
 services:
-  redis:
-    image: bitnami/redis:latest
-    environment:
-      REIDS_PASSWORD: 123456789Sd!
-      ALLOW_EMPTY_PASSWORD: yes
-    ports:
-      - '6379:6379'
-    mem_limit: 256M
-  mongo:
-    image: bitnami/mongodb:latest
-    environment:
-      MONGODB_ROOT_PASSWORD: 123456789Sd!
-      MONGODB_REPLICA_SET_KEY: 123456789Sd
-    ports:
-      - '27017:27017'
-    mem_limit: 256M
+#   redis:
+#     image: bitnami/redis:latest
+#     environment:
+#       REIDS_PASSWORD: 123456789Sd!
+#       ALLOW_EMPTY_PASSWORD: yes
+#     ports:
+#       - '6379:6379'
+#     mem_limit: 256M
+#   mongo:
+#     image: bitnami/mongodb:latest
+#     environment:
+#       MONGODB_ROOT_PASSWORD: 123456789Sd!
+#       MONGODB_REPLICA_SET_KEY: 123456789Sd
+#     ports:
+#       - '27017:27017'
+#     mem_limit: 256M
   rabbitmq:
     image: rabbitmq:management
     environment:
@@ -29,8 +29,8 @@ services:
       - '25672:25672'
       - '15672:15672'
     mem_limit: 256M
-  meili:
-    image: getmeili/meilisearch
-    ports:
-      - '7700:7700'
-    mem_limit: 256M
+#   meili:
+#     image: getmeili/meilisearch
+#     ports:
+#       - '7700:7700'
+#     mem_limit: 256M
