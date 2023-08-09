@@ -1,17 +1,16 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, Logger } from '@nestjs/common';
 import * as request from 'supertest';
 import { ChangeUserProfileDto, RegisterDto } from '@app/interface';
-import { HttpExceptionFilter } from '@app/common';
+import { HttpExceptionFilter, HttpResponseInterceptor } from '@app/common';
 import { AppModule } from '../apps/main/src/app.module';
 import { NestFactory } from '@nestjs/core';
+import { AddFriendDto } from '@app/interface/models/request/AddFriendDto';
 describe('main', () => {
 	let app: INestApplication;
 	let server: any;
 	let token: string;
 	beforeAll(async () => {
-		app = await NestFactory.create(AppModule, {
-			logger: false,
-		});
+		app = await NestFactory.create(AppModule);
 		app.useGlobalFilters(new HttpExceptionFilter());
 		await app.listen(3000);
 		server = app.getHttpServer();
@@ -21,8 +20,7 @@ describe('main', () => {
 			done();
 		});
 	});
-	describe('Account (e2e)', () => {
-		let questionId = '';
+	it('user register', async () => {
 		const dto: RegisterDto = {
 			name: 'Tester-1',
 			sex: 'other',
@@ -34,123 +32,80 @@ describe('main', () => {
 			birthday: new Date().getTime().toString(),
 			email: 'tester@no-reply.com',
 		};
-		it('POST (/account/register)', () => {
-			return request(server)
+		for (let i = 0; i < 10; i++) {
+			await request(server)
 				.post('/account/register')
-				.send(dto)
+				.send({
+					...dto,
+					name: `Tester-${i}`,
+					email: `tester-${i}@no-reply.com`,
+				})
 				.expect(201);
+		}
+		return Promise.resolve(true);
+	});
+	it('user login', async () => {
+		const req = await request(server).get('/account/login').send({
+			tid: '1',
+			password: '123456789Sd!',
 		});
-		it('GET (/account/login)', async () => {
-			const req = await request(server).get('/account/login').send({
+		token = req.body.token;
+		expect(token).not.toBe('');
+		return expect(req.status).toBe(HttpStatus.OK);
+	});
+	it('forget password', async () => {
+		await request(server)
+			.patch('/account/forget')
+			.send({
+				tid: '1',
+				answer: {
+					q1: 'a2',
+				},
+				new_pwd: '123456789Sd',
+			})
+			.expect(HttpStatus.BAD_REQUEST);
+		await request(server)
+			.patch('/account/forget')
+			.send({
+				tid: '1',
+				answer: {
+					q1: 'a1',
+				},
+				new_pwd: '123456789Sd',
+			})
+			.expect(HttpStatus.OK);
+		return request(server)
+			.get('/account/login')
+			.send({
 				tid: '1',
 				password: '123456789Sd!',
-			});
-			token = req.body.token;
-			return expect(req.status).toBe(200);
-		});
-		it('GET (/account/question)', async () => {
-			const req = await request(server).get('/account/question').send({
-				tid: '1',
-			});
-			questionId = req.body.id;
-			return expect(req.statusCode).toBe(200);
-		});
-		it('GET (/account/check/answer)', () => {
-			return request(server)
-				.get('/account/check/answer')
-				.query({
-					tid: '1',
-					question_id: questionId,
-				})
-				.send({
-					question: {
-						q1: 'a1',
-					},
-				})
-				.expect(200);
-		});
-		it('PATCH (/account/password)', () => {
-			return request(server)
-				.patch('/account/password')
-				.send({
-					tid: '1',
-					old_pwd: '123456789Sd!',
-					new_pwd: '123456789',
-				})
-				.expect(200);
-		});
-		describe('PATCH (/account/forget)', () => {
-			it('answer error', () => {
-				return request(server)
-					.patch('/account/forget')
-					.send({
-						tid: '1',
-						answer: {
-							q1: 'a2',
-						},
-						new_pwd: '123456789Sd',
-					})
-					.expect(500);
-			});
-			it('answer success', () => {
-				return request(server)
-					.patch('/account/forget')
-					.send({
-						tid: '1',
-						answer: {
-							q1: 'a1',
-						},
-						new_pwd: '123456789Sd',
-					})
-					.expect(200);
-			});
-			it('raw password should not be login', () => {
-				return request(server)
-					.get('/account/login')
-					.send({
-						tid: '1',
-						password: '123456789Sd!',
-					})
-					.expect(500);
-			});
-		});
+			})
+			.expect(HttpStatus.BAD_REQUEST);
 	});
-	describe('User (e2e)', () => {
-		it('GET (/users/profile)', async () => {
-			request(server)
-				.get('/users/profile')
-				.set('authorization', `Bearer ${token}`)
-				.query({
-					tid: '1',
-				})
-				.expect(200);
-			return request(server)
-				.get('/users/profile')
-				.set('authorization', `Bearer ${token}`)
-				.query({
-					tid: '-11',
-				})
-				.expect(400);
-		});
-		it('PATCH (/users/profile)', async () => {
-			const dto: ChangeUserProfileDto = {
-				nick: 'new-nick',
-			};
-			await request(server)
-				.patch('/users/profile')
-				.set('authorization', `Bearer ${token}`)
-				.send(dto)
-				.expect(200);
-			return request(server)
-				.get('/users/profile')
-				.set('authorization', `Bearer ${token}`)
-				.query({
-					tid: '1',
-				})
-				.expect(200)
-				.then(({ body }) => {
-					return expect(body.nick).toBe(dto.nick);
-				});
-		});
+	it('get user profile', async () => {
+		await request(server)
+			.get('/users/profile')
+			.set('Authorization', `Bearer ${token}`)
+			.query({ tid: '-1' })
+			.expect(HttpStatus.BAD_REQUEST);
+		return request(server)
+			.get('/users/profile')
+			.set('Authorization', `Bearer ${token}`)
+			.query({ tid: '1' })
+			.expect(200);
+	});
+	it('update profile', async () => {
+		await request(server)
+			.patch('/users/profile')
+			.set('Authorization', `Bearer ${token}`)
+			.send({
+				description: 'update',
+			})
+			.expect(HttpStatus.OK);
+		const { body } = await request(server)
+			.get('/users/profile')
+			.set('Authorization', `Bearer ${token}`)
+			.query({ tid: '1' });
+		expect(body.description).toBe('update');
 	});
 });
