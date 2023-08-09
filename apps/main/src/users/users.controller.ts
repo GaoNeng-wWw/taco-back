@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { ChangeUserProfileDto } from '@app/interface';
 import { AuthGuard } from '@app/jwt/jwt.guard';
 import { Token } from '@app/common/token.decorator';
+import { Tid } from '@app/common';
 @UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
@@ -12,10 +13,7 @@ export class UsersController {
 		return this.usersService.profile(tid);
 	}
 	@Patch('profile')
-	async patchProfile(
-		@Body() dto: ChangeUserProfileDto,
-		@Token() token: string,
-	) {
-		return this.usersService.updateProfile(token, dto);
+	async patchProfile(@Body() dto: ChangeUserProfileDto, @Tid() tid: string) {
+		return this.usersService.updateProfile(tid, dto);
 	}
 }

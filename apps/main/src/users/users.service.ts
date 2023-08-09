@@ -29,10 +29,9 @@ export class UsersService {
 		return info;
 	}
 	async updateProfile(
-		token: string,
+		tid: string,
 		newProfile: UserProfileDto,
 	): Promise<Profile> {
-		const { tid } = await this.jwt.decode<Profile>(token);
 		const info = await this.userModel
 			.findOneAndUpdate({ tid }, newProfile, {
 				lean: true,
