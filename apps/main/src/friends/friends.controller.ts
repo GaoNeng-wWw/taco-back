@@ -6,17 +6,20 @@ import {
 	Patch,
 	Put,
 	Query,
+	UseGuards,
 } from '@nestjs/common';
 import { FriendsService } from './friends.service';
 import { Tid } from '@app/common';
 import { ChangeFriendTag } from '@app/interface';
 import { AddFriendDto } from '@app/interface/models/request/AddFriendDto';
+import { AuthGuard } from '@app/jwt/jwt.guard';
 
+@UseGuards(AuthGuard)
 @Controller('friends')
 export class FriendsController {
 	constructor(private readonly friendsService: FriendsService) {}
 	@Get('')
-	async getFriend(@Query('tid') tid: string, @Query('page') page: number) {
+	async getFriend(@Tid() tid: string, @Query('page') page: number) {
 		return this.friendsService.get(tid, page);
 	}
 	@Patch('tag')
@@ -29,6 +32,7 @@ export class FriendsController {
 	}
 	@Delete('')
 	async deleteFriend(@Tid() source: string, @Query('tid') target: string) {
+		console.log(source, target);
 		return this.friendsService.remove(source, target);
 	}
 	@Put('block')

@@ -22,6 +22,9 @@ export class HttpExceptionFilter<T> implements ExceptionFilter {
 		} else {
 			code = HttpStatus.INTERNAL_SERVER_ERROR;
 			res.setMessage(serviceErrorEnum.UNKNOWN_ERROR);
+			Logger.error((exception as unknown as Error).name);
+			Logger.error((exception as unknown as Error).message);
+			Logger.error((exception as unknown as Error).stack);
 			if (process.env.NODE_ENV !== 'test') {
 				Logger.error((exception as unknown as Error).name);
 				Logger.error((exception as unknown as Error).message);

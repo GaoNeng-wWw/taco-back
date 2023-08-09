@@ -5,11 +5,14 @@ import {
 	HttpStatus,
 	Put,
 	Query,
+	UseGuards,
 } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { Tid } from '@app/common';
 import { ServiceError, serviceErrorEnum } from '@app/errors';
+import { AuthGuard } from '@app/jwt/jwt.guard';
 
+@UseGuards(AuthGuard)
 @Controller('request')
 export class RequestController {
 	constructor(private readonly requestService: RequestService) {}

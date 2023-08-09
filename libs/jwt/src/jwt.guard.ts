@@ -13,6 +13,11 @@ export class AuthGuard implements CanActivate {
 		}
 		try {
 			await this.jwt.verify(token);
+			Reflect.set(
+				context.switchToHttp().getRequest(),
+				'user',
+				await this.jwt.decode(token),
+			);
 			return true;
 		} catch (e) {
 			return false;

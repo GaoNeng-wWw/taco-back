@@ -26,7 +26,8 @@ export class RequestService {
 		routingKey: 'request.add',
 		createQueueIfNotExists: true,
 	})
-	async addRequest(tid: string, request: Request<any, any>) {
+	async addRequest(request: Request<any, any>) {
+		const tid = request.recive;
 		const req = JSON.stringify(request);
 		const namespace = this.REQUEST_NAMESPACE(tid);
 		const splitNameSpace = this.REQUEST_HASH_KEY_NAMESPACE(tid);
@@ -87,6 +88,7 @@ export class RequestService {
 				JSON.parse(await this.redis.hget(namespace, keys[i])),
 			);
 		}
+		console.log(requests);
 		return requests
 			.map((request) => {
 				const rid = request.rid;

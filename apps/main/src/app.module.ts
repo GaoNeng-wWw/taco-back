@@ -38,7 +38,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 		UsersModule,
 		AccountModule,
 		NoticeModule,
-		// RequestModule,
+		RequestModule,
 		FriendsModule,
 	],
 	controllers: [],

@@ -36,7 +36,10 @@ export class FriendsService {
 	async add(source: string, dto: AddFriendDto) {
 		const { tid, msg } = dto;
 		if (await this.hasFriend(source, tid)) {
-			throw new ServiceError(serviceErrorEnum.HAS_FRIEND);
+			throw new ServiceError(
+				serviceErrorEnum.HAS_FRIEND,
+				HttpStatus.BAD_REQUEST,
+			);
 		}
 		const expire = this.configService.get<number>('system.request.expire');
 		const request = createRequest(
@@ -59,12 +62,19 @@ export class FriendsService {
 			payload: request,
 			fn: 'addRequest',
 		});
-		await this.channel.publish(exchange, routingKey, request);
+		await this.channel.request({
+			exchange,
+			routingKey,
+			payload: request,
+		});
 		return true;
 	}
 	async remove(source: string, target: string) {
 		if (!(await this.hasFriend(source, target))) {
-			throw new ServiceError(serviceErrorEnum.NOT_HAS_FRIEND);
+			throw new ServiceError(
+				serviceErrorEnum.NOT_HAS_FRIEND,
+				HttpStatus.BAD_REQUEST,
+			);
 		}
 		const { _id } = await this.users
 			.findOne(
@@ -186,7 +196,7 @@ export class FriendsService {
 					)
 					.lean()
 					.exec()
-			)._id;
+			)?._id;
 		const record = await this.Friend.findOne({
 			source: sourceId,
 			target: targetId,
@@ -219,14 +229,6 @@ export class FriendsService {
 			friend.target = sender;
 			await friend.save({
 				session,
-			});
-			await this.channel.request({
-				exchange: 'system.call',
-				routingKey: 'request.remove',
-				payload: {
-					tid: sender,
-					rid: dto.rid,
-				},
 			});
 			await this.channel.request({
 				exchange: 'system.call',

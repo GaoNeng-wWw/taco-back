@@ -82,7 +82,10 @@ export class AccountService {
 			.lean()
 			.exec();
 		if (isEmpty(info)) {
-			throw new ServiceError(serviceErrorEnum.TID_OR_PASSWORD_ERROR);
+			throw new ServiceError(
+				serviceErrorEnum.TID_OR_PASSWORD_ERROR,
+				HttpStatus.BAD_REQUEST,
+			);
 		}
 		return { token: await this.jwt.signObject(info) };
 	}
@@ -151,7 +154,10 @@ export class AccountService {
 			.exec();
 		const questionStr = JSON.stringify(info?.question ?? '{}');
 		if (questionStr !== JSON.stringify(answer)) {
-			throw new ServiceError(serviceErrorEnum.ANSWER_ERROR);
+			throw new ServiceError(
+				serviceErrorEnum.ANSWER_ERROR,
+				HttpStatus.BAD_REQUEST,
+			);
 		}
 		await this.userModel
 			.findOneAndUpdate(
