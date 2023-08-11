@@ -43,12 +43,10 @@ port=3000
 
 [system]
 size=10
-
-[notice]
+[system.notice]
 # 意味着每页只有十个
 size=10
-
-[request]
+[system.request]
 salt="x7faqgjw"
 size=10
 expire=604800000
@@ -57,7 +55,6 @@ expire=604800000
 exchange='system.call'
 queue='system.call.request'
 routingKey='request.remove'
-
 [request.addRequest]
 exchange='system.call'
 queue='system.call.request'

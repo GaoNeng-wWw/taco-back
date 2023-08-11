@@ -6,7 +6,6 @@ import { FriendAction, GroupAction, ModuleKeys, Request } from '@app/interface';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { createHash } from 'crypto';
 import { Redis } from 'ioredis';
 import { isEmpty } from 'lodash';
 
@@ -31,7 +30,8 @@ export class RequestService {
 		const req = JSON.stringify(request);
 		const namespace = this.REQUEST_NAMESPACE(tid);
 		const splitNameSpace = this.REQUEST_HASH_KEY_NAMESPACE(tid);
-		const rid = createHash('sha256').update(req).digest('hex').toString();
+		const rid = request.rid;
+		request.expire += this.config.get<number>('system.request.expire');
 		await this.redis.hset(namespace, {
 			[rid]: req,
 		});
@@ -88,20 +88,7 @@ export class RequestService {
 				JSON.parse(await this.redis.hget(namespace, keys[i])),
 			);
 		}
-		console.log(requests);
-		return requests
-			.map((request) => {
-				const rid = request.rid;
-				return {
-					[rid]: request,
-				};
-			})
-			.reduce((pre, cur) => {
-				return {
-					...pre,
-					...cur,
-				};
-			}, {});
+		return requests;
 	}
 	async getReuqest(
 		tid: string,
@@ -139,7 +126,7 @@ export class RequestService {
 		const action = getAction(request);
 		return await this.channel.request<T>({
 			exchange: 'system.call',
-			routingKey: `${module}.${action}.${status}`,
+			routingKey: `${module}.${action}.${status}`.toLowerCase(),
 			payload: request,
 		});
 	}

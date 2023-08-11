@@ -1,14 +1,16 @@
-import { HttpStatus, INestApplication, Logger } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { ChangeUserProfileDto, RegisterDto } from '@app/interface';
-import { HttpExceptionFilter, HttpResponseInterceptor } from '@app/common';
+import { RegisterDto } from '@app/interface';
+import { HttpExceptionFilter } from '@app/common';
 import { AppModule } from '../apps/main/src/app.module';
 import { NestFactory } from '@nestjs/core';
 import { AddFriendDto } from '@app/interface/models/request/AddFriendDto';
+import { Request } from '@app/factory';
+
 describe('main', () => {
 	let app: INestApplication;
 	let server: any;
-	let token: string;
+	const token = [];
 	beforeAll(async () => {
 		app = await NestFactory.create(AppModule);
 		app.useGlobalFilters(new HttpExceptionFilter());
@@ -49,7 +51,14 @@ describe('main', () => {
 			tid: '1',
 			password: '123456789Sd!',
 		});
-		token = req.body.token;
+		token.push(req.body.token);
+		for (let i = 2; i <= 10; i++) {
+			const req = await request(server).get('/account/login').send({
+				tid: i.toString(),
+				password: '123456789Sd!',
+			});
+			token.push(req.body.token);
+		}
 		expect(token).not.toBe('');
 		return expect(req.status).toBe(HttpStatus.OK);
 	});
@@ -85,27 +94,74 @@ describe('main', () => {
 	it('get user profile', async () => {
 		await request(server)
 			.get('/users/profile')
-			.set('Authorization', `Bearer ${token}`)
+			.set('Authorization', `Bearer ${token[0]}`)
 			.query({ tid: '-1' })
 			.expect(HttpStatus.BAD_REQUEST);
 		return request(server)
 			.get('/users/profile')
-			.set('Authorization', `Bearer ${token}`)
+			.set('Authorization', `Bearer ${token[0]}`)
 			.query({ tid: '1' })
 			.expect(200);
 	});
 	it('update profile', async () => {
 		await request(server)
 			.patch('/users/profile')
-			.set('Authorization', `Bearer ${token}`)
+			.set('Authorization', `Bearer ${token[0]}`)
 			.send({
 				description: 'update',
 			})
 			.expect(HttpStatus.OK);
 		const { body } = await request(server)
 			.get('/users/profile')
-			.set('Authorization', `Bearer ${token}`)
+			.set('Authorization', `Bearer ${token[0]}`)
 			.query({ tid: '1' });
-		expect(body.description).toBe('update');
+		return expect(body.description).toBe('update');
+	});
+	it.todo('report user');
+	it('add friend', async () => {
+		const add: AddFriendDto = {
+			tid: '2',
+			msg: 'test',
+		};
+		await request(server)
+			.get('/friends')
+			.set('Authorization', `Bearer ${token[0]}`)
+			.query({
+				page: 1,
+			})
+			.expect(HttpStatus.OK)
+			.expect([]);
+		await request(server)
+			.put('/friends')
+			.set('Authorization', `Bearer ${token[0]}`)
+			.send(add)
+			.expect(HttpStatus.OK);
+		const { body, statusCode } = await request(server)
+			.get('/request')
+			.set('Authorization', `Bearer ${token[1]}`)
+			.query({
+				page: 1,
+			});
+		expect(statusCode).toBeLessThan(299);
+		expect(body).not.toStrictEqual([]);
+
+		for (const req of body as Request<any, any>[]) {
+			const { rid } = req;
+			const { statusCode } = await request(server)
+				.put('/request/accept')
+				.set('Authorization', `Bearer ${token[1]}`)
+				.query({
+					rid,
+				});
+			expect(statusCode).toBeLessThan(299);
+		}
+		const { body: friends } = await request(server)
+			.get('/friends')
+			.set('Authorization', `Bearer ${token[0]}`)
+			.query({
+				page: 1,
+			});
+		expect(statusCode).toBeLessThan(299);
+		expect(friends).not.toStrictEqual([]);
 	});
 });

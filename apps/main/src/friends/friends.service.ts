@@ -1,10 +1,16 @@
 import { ConfigService } from '@app/config';
-import { Request, createNotice, createRequest, isExpired } from '@app/factory';
+import {
+	Request,
+	createNotice,
+	createRequest,
+	createRid,
+	isExpired,
+} from '@app/factory';
 import { RequestOption } from '@app/factory/request-options';
 import { ChangeFriendTag, FriendAction, SenderType } from '@app/interface';
 import { AddFriendDto } from '@app/interface/models/request/AddFriendDto';
 import { Users, UsersDocument } from '@app/schemas/user.schema';
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { AmqpConnection, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -17,6 +23,7 @@ import { BlackList, BlackListDocument } from '@app/schemas/black-list.schema';
 import { NoticeService } from '../notice/notice.service';
 import { BlackListCacheService } from '@app/redis-utils/black-list/black-list.service';
 import { AccountCacheService } from '@app/redis-utils/account/account.service';
+import { createHash } from 'node:crypto';
 
 @Injectable()
 export class FriendsService {
@@ -52,6 +59,7 @@ export class FriendsService {
 				msg,
 			},
 		);
+		request.rid = createRid(request);
 		const { exchange, routingKey } = new RequestOption<
 			'request',
 			RequestService,
@@ -203,7 +211,12 @@ export class FriendsService {
 		}).exec();
 		return record !== null;
 	}
-
+	@RabbitRPC({
+		exchange: 'system.call',
+		queue: 'system.call.friend',
+		routingKey: 'friend.add.accept',
+		createQueueIfNotExists: true,
+	})
 	async accept(dto: Request<'FRIEND', FriendAction>) {
 		const { sender, recive } = dto;
 		const session = await this.Friend.startSession();
@@ -213,21 +226,21 @@ export class FriendsService {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		const friend = new this.Friend();
-		friend.source = sender;
-		friend.target = recive;
 		session.startTransaction({
 			writeConcern: {
 				w: 'majority',
 			},
 		});
 		try {
-			await friend.save({
+			const friends = [new this.Friend(), new this.Friend()];
+			friends[0].source = sender;
+			friends[0].target = recive;
+			await friends[0].save({
 				session,
 			});
-			friend.source = recive;
-			friend.target = sender;
-			await friend.save({
+			friends[1].source = recive;
+			friends[1].target = sender;
+			await friends[1].save({
 				session,
 			});
 			await this.channel.request({

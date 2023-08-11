@@ -1,5 +1,7 @@
 /* eslint-disable indent */
+import { ConfigService } from '@app/config';
 import { Action, Request as IRequest, ModuleKeys } from '@app/interface';
+import { createHash } from 'crypto';
 
 export class Request<M extends ModuleKeys, A extends Action<M> = Action<M>>
 	implements IRequest<M, A>
@@ -71,4 +73,14 @@ export const isExpired = (
 	time = new Date().getTime(),
 ) => {
 	return request.expire < time;
+};
+
+export const createRid = (request: Request<any, any>) => {
+	const requestHash = createHash('md5')
+		.update(JSON.stringify(request))
+		.digest('hex')
+		.slice(0, 16);
+	const workerId = process.env.WORKER_ID ?? 1;
+	const { sender, recive } = request;
+	return `${sender}-${recive}-${workerId}-${requestHash}`;
 };
