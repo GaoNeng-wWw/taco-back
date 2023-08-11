@@ -2,11 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RequestController } from '../request.controller';
 import { RequestService } from '../request.service';
 import { mockFactory } from '@app/mock';
+import { CanActivate } from '@nestjs/common';
+import { AuthGuard } from '@app/jwt/jwt.guard';
 
 describe('RequestController', () => {
 	let controller: RequestController;
 
 	beforeEach(async () => {
+		const mockGuard: CanActivate = { canActivate: jest.fn(() => true) };
 		const module: TestingModule = await Test.createTestingModule({
 			controllers: [RequestController],
 			providers: [
@@ -15,7 +18,10 @@ describe('RequestController', () => {
 					useValue: mockFactory(RequestService, true),
 				},
 			],
-		}).compile();
+		})
+			.overrideGuard(AuthGuard)
+			.useValue(mockGuard)
+			.compile();
 
 		controller = module.get<RequestController>(RequestController);
 	});

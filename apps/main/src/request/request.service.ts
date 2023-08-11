@@ -1,6 +1,6 @@
 import { ConfigService } from '@app/config';
 import { ServiceError, serviceErrorEnum } from '@app/errors';
-import { getAction, getModule, isExpired } from '@app/factory';
+import { createRid, getAction, getModule, isExpired } from '@app/factory';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { FriendAction, GroupAction, ModuleKeys, Request } from '@app/interface';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
@@ -30,7 +30,7 @@ export class RequestService {
 		const req = JSON.stringify(request);
 		const namespace = this.REQUEST_NAMESPACE(tid);
 		const splitNameSpace = this.REQUEST_HASH_KEY_NAMESPACE(tid);
-		const rid = request.rid;
+		const rid = request.rid || createRid(request);
 		request.expire += this.config.get<number>('system.request.expire');
 		await this.redis.hset(namespace, {
 			[rid]: req,

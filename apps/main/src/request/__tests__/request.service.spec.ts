@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RequestService } from '../request.service';
 import { getRedisToken } from '@liaoliaots/nestjs-redis';
-import { createRequest } from '@app/factory';
+import { Request, createRequest } from '@app/factory';
 import { FriendAction } from '@app/interface';
 import { ConfigService } from '@app/config';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
@@ -90,10 +90,28 @@ describe('RequestService', () => {
 		expect(service).toBeDefined();
 	});
 	it('add request', () => {
-		expect(service.addRequest('', expireRequest)).resolves.not.toBe('');
-		expect(service.addRequest('', neverExpireRequest)).resolves.not.toBe(
-			'',
-		);
+		const expireRequest = {
+			action: '',
+			meta: {},
+			module: '',
+			rid: '',
+			sender: '',
+			expire: 0,
+			sign: '',
+			recive: '',
+		} as Request<any, any>;
+		const neverExpireRequest = {
+			action: '',
+			meta: {},
+			module: '',
+			rid: '',
+			sender: '',
+			expire: Number.MAX_SAFE_INTEGER,
+			sign: '',
+			recive: '',
+		} as Request<any, any>;
+		expect(service.addRequest(expireRequest)).resolves.not.toBe('');
+		expect(service.addRequest(neverExpireRequest)).resolves.not.toBe('');
 	});
 	describe('get all request', () => {
 		it('all', () => {
