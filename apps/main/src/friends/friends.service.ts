@@ -158,6 +158,7 @@ export class FriendsService {
 					description: '$result.description',
 					email: '$result.email',
 					sex: '$result.sex',
+					tag: 1,
 				},
 			},
 		]).exec();
@@ -177,37 +178,9 @@ export class FriendsService {
 		return true;
 	}
 	async hasFriend(source: string, target: string) {
-		const sourceId =
-			(await this.accountCache.getId(source)) ??
-			(
-				await this.users
-					.findOne(
-						{
-							tid: source,
-						},
-						{
-							_id: 1,
-						},
-					)
-					.lean()
-					.exec()
-			)._id;
-		const targetId =
-			(await this.accountCache.getId(target)) ??
-			(
-				await this.users
-					.findOne(
-						{
-							tid: target,
-						},
-						{ _id: 1 },
-					)
-					.lean()
-					.exec()
-			)?._id;
 		const record = await this.Friend.findOne({
-			source: sourceId,
-			target: targetId,
+			source: source,
+			target: target,
 		}).exec();
 		return record !== null;
 	}

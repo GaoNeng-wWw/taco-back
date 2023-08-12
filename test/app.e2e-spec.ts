@@ -1,6 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { RegisterDto } from '@app/interface';
+import { ChangeFriendTag, RegisterDto } from '@app/interface';
 import { HttpExceptionFilter } from '@app/common';
 import { AppModule } from '../apps/main/src/app.module';
 import { NestFactory } from '@nestjs/core';
@@ -162,6 +162,24 @@ describe('main', () => {
 				page: 1,
 			});
 		expect(statusCode).toBeLessThan(299);
-		expect(friends).not.toStrictEqual([]);
+		return expect(friends).not.toStrictEqual([]);
+	});
+	it('update friend tag', async () => {
+		const updateTagDto: ChangeFriendTag = {
+			tid: '2',
+			tag: 'test',
+		};
+		await request(server)
+			.patch('/friends/tag')
+			.set('Authorization', `Bearer ${token[0]}`)
+			.send(updateTagDto)
+			.expect(HttpStatus.OK);
+		const { body } = await request(server)
+			.get('/friends')
+			.set('Authorization', `Bearer ${token[0]}`)
+			.query({
+				page: 1,
+			});
+		expect(body).toMatchObject([{ tag: 'test' }]);
 	});
 });
