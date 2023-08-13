@@ -1,4 +1,3 @@
-import { MqttModuleOptions } from '@app/mqtt';
 import { IClientOptions } from 'mqtt';
 
 export type RPC = {

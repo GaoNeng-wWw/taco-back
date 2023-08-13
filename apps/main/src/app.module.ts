@@ -18,6 +18,7 @@ import { FriendsModule } from './friends/friends.module';
 import { JwtModule } from '@app/jwt';
 import { CacheModule } from '@app/cache';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { BlackListModule } from './black-list/black-list.module';
 @Module({
 	imports: [
 		ConfigModule.forRoot('config.toml'),
@@ -40,6 +41,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 		NoticeModule,
 		RequestModule,
 		FriendsModule,
+		BlackListModule,
 	],
 	controllers: [],
 	providers: [],
