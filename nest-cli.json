@@ -172,15 +172,6 @@
         "tsConfigPath": "libs/keypair/tsconfig.lib.json"
       }
     },
-    "pusher": {
-      "type": "application",
-      "root": "apps/pusher",
-      "entryFile": "main",
-      "sourceRoot": "apps/pusher/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/pusher/tsconfig.app.json"
-      }
-    },
     "status": {
       "type": "library",
       "root": "libs/status",
@@ -224,6 +215,15 @@
       "sourceRoot": "libs/mqtt/src",
       "compilerOptions": {
         "tsConfigPath": "libs/mqtt/tsconfig.lib.json"
+      }
+    },
+    "pusher": {
+      "type": "application",
+      "root": "apps/pusher",
+      "entryFile": "main",
+      "sourceRoot": "apps/pusher/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/pusher/tsconfig.app.json"
       }
     }
   }

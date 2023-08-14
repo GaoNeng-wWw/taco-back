@@ -155,7 +155,9 @@ describe('FriendsService', () => {
 	it(
 		'hasFriend',
 		() => {
-			return expect(service.hasFriend('1', '2')).resolves.not.toThrow();
+			return expect(
+				service.hasFriend({ source: '1', target: '2' }),
+			).resolves.not.toThrow();
 		},
 		60 * 1000,
 	);

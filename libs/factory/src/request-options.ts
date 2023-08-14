@@ -3,6 +3,37 @@ import { ConfigService } from '@app/config';
 import { ConfigTemplate } from '@app/config/config.interface';
 import { RequestOptions } from '@golevelup/nestjs-rabbitmq';
 
+export type ICreateRequestOptionParam<T = any> = {
+	system: string;
+	fn: keyof T;
+	configService?: ConfigService;
+	payload: Record<string, any>;
+};
+
+export type ICreateRequestOptionReturn = {
+	exchange: string;
+	routingKey: string;
+	payload: Record<string, any>;
+};
+
+export const createRequestOption = <T>({
+	system,
+	fn,
+	configService,
+	payload,
+}: ICreateRequestOptionParam<T>): ICreateRequestOptionReturn => {
+	return {
+		exchange:
+			configService.get(
+				`${system}.${fn.toString()}.exchange` as ConfigTemplate,
+			) ?? configService.get('global.rabbitmq.rpc.exchange'),
+		routingKey: configService.get(
+			`${system}.${fn.toString()}.routingKey` as ConfigTemplate,
+		),
+		payload,
+	};
+};
+
 export enum RPCSystem {
 	NOTICE = 'notice',
 	REQUEST = 'request',
