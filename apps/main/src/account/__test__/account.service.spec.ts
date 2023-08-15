@@ -10,6 +10,7 @@ import { Groups, GroupsSchema } from '@app/schemas/group.schema';
 import { Users, UsersSchema } from '@app/schemas/user.schema';
 import { Questions, QuestionsSchema } from '@app/schemas/querstions.schema';
 import { RegisterDto } from '@app/interface';
+import { ConfigService } from '@app/config';
 
 describe('AccountService', () => {
 	let service: AccountService;
@@ -42,6 +43,12 @@ describe('AccountService', () => {
 						get: jest.fn().mockResolvedValue(1),
 						del: jest.fn(),
 						set: jest.fn(),
+					},
+				},
+				{
+					provide: ConfigService,
+					useValue: {
+						get: jest.fn(),
 					},
 				},
 			],

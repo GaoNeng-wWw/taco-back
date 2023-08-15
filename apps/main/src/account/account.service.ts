@@ -32,6 +32,7 @@ export class AccountService {
 		@InjectModel(Questions.name)
 		private readonly questions: Model<QuestionsDocument>,
 		private readonly jwt: JwtService,
+		private readonly config: ConfigService,
 		@InjectRedis() private readonly redis: Redis,
 	) {}
 	async registe(createUserDto: RegisterDto): Promise<RegisterResponseData> {
@@ -91,8 +92,14 @@ export class AccountService {
 		}
 		const ns = this.TOKEN_NAMESPACE(dto.tid);
 		const refreshTokenNs = this.REFRESH_TOKEN_NS(dto.tid);
-		const access_token = await this.jwt.signObject(info);
-		const refresh_token = await this.jwt.signObject({ access_token });
+		const access_token = await this.jwt.signObject(
+			info,
+			this.config.get('system.account.token.expire.access_token'),
+		);
+		const refresh_token = await this.jwt.signObject(
+			{ access_token },
+			this.config.get('system.account.token.expire.refresh_token'),
+		);
 		await this.redis.set(ns, access_token);
 		await this.redis.set(refreshTokenNs, refresh_token);
 		return { access_token, refreshToken: refresh_token };
