@@ -31,7 +31,6 @@ export interface ConfigOption {
 			};
 		};
 		mqtt: IClientOptions;
-		expire: number;
 	};
 	/** Http scope */
 	http: {
@@ -40,6 +39,14 @@ export interface ConfigOption {
 	system: {
 		/** Size默认值，如果任何一个子系统下的size为空，那么则用默认值 */
 		size: number;
+		account: {
+			token: {
+				expire: {
+					access_token: string;
+					refresh_token: string;
+				};
+			};
+		};
 		/** Notice system */
 		notice: {
 			size: number;

@@ -1,7 +1,3 @@
-[global]
-
-expire=604800000
-
 [global.db]
 
 uri="mongodb://root:123456789Sd!@localhost:27017/?authMechanism=DEFAULT&authSource=admin"
@@ -18,7 +14,7 @@ expired=604800
 
 secret="xBuYxme6eYaAi7ayBB8R"
 issuer="Taco-issuer"
-expire="1y"
+expire="7d"
 
 [global.rabbitmq]
 
@@ -43,6 +39,13 @@ port=3000
 
 [system]
 size=10
+
+[system.account]
+[system.account.token]
+[system.account.token.expire]
+access_token="7d"
+refresh_token="30d"
+
 [system.notice]
 # 意味着每页只有十个
 size=10
