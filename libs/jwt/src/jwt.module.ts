@@ -17,9 +17,6 @@ import { ConfigModule, ConfigService } from '@app/config';
 				const secret = config.get<string>('global.jwt.secret');
 				return {
 					secret,
-					signOptions: {
-						expiresIn: config.get('global.jwt.expire').toString(),
-					},
 				};
 			},
 		}),

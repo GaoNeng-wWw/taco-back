@@ -20,7 +20,7 @@ export class JwtService {
 	): Promise<T> {
 		return this.jwt.decode(token) as T;
 	}
-	async sign(tid: string, password: string) {
+	async sign(tid: string, password: string, expire = '7d') {
 		const res = await this.userModel
 			.findOne(
 				{
@@ -37,14 +37,16 @@ export class JwtService {
 		if (isEmpty(res)) {
 			return null;
 		}
-		return this.jwt.sign(res);
+		return this.jwt.sign(res, {
+			expiresIn: expire,
+		});
 	}
 	async signObject<T extends string | object | Buffer>(
 		data: T,
+		expire = '7d',
 	): Promise<string> {
-		return this.jwt.sign(data);
+		return this.jwt.sign(data, {
+			expiresIn: expire,
+		});
 	}
-	// async renewal(token: string) {
-	// 	const { expire } = this.jwt.decode(token);
-	// }
 }
