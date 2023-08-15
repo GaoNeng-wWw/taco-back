@@ -19,11 +19,13 @@ import { ServiceError, serviceErrorEnum } from '@app/errors';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { Questions, QuestionsDocument } from '@app/schemas/querstions.schema';
+import { ConfigService } from '@app/config';
 
 @Injectable()
 export class AccountService {
 	private ACCOUNT_POOL_NAMESPACE = () => 'ACCOUNT:POOL';
 	private TOKEN_NAMESPACE = (tid: string) => `TOKEN:${tid}`;
+	private REFRESH_TOKEN_NS = (tid: string) => `TOKEN:REFRESH:${tid}`;
 	constructor(
 		@InjectModel(Users.name)
 		private readonly userModel: Model<UsersDocument>,
@@ -70,16 +72,16 @@ export class AccountService {
 			.digest('hex');
 		const { tid, password } = dto;
 		const info = await this.userModel
-			.findOne<Profile>(
+			.findOne(
 				{
 					tid: tid,
 					password: password,
 				},
 				{
-					friends: 0,
+					tid: 1,
 				},
 			)
-			.lean()
+			.lean<{ tid: string }>()
 			.exec();
 		if (isEmpty(info)) {
 			throw new ServiceError(
@@ -87,7 +89,13 @@ export class AccountService {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		return { token: await this.jwt.signObject(info) };
+		const ns = this.TOKEN_NAMESPACE(dto.tid);
+		const refreshTokenNs = this.REFRESH_TOKEN_NS(dto.tid);
+		const access_token = await this.jwt.signObject(info);
+		const refresh_token = await this.jwt.signObject({ access_token });
+		await this.redis.set(ns, access_token);
+		await this.redis.set(refreshTokenNs, refresh_token);
+		return { access_token, refreshToken: refresh_token };
 	}
 	async getQuestion(tid: string): Promise<GetQuestionResponseData> {
 		const rawData = await this.questions

@@ -36,18 +36,12 @@ describe('AccountService', () => {
 					},
 				},
 				{
-					provide: CacheModule,
-					useValue: {
-						incrby: jest.fn().mockResolvedValue(1),
-						get: jest.fn().mockResolvedValue(0),
-					},
-				},
-				{
 					provide: getRedisToken('default'),
 					useValue: {
 						incrby: jest.fn().mockResolvedValue(1),
 						get: jest.fn().mockResolvedValue(1),
 						del: jest.fn(),
+						set: jest.fn(),
 					},
 				},
 			],
