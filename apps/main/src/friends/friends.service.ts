@@ -6,7 +6,10 @@ import {
 	createRid,
 	isExpired,
 } from '@app/factory';
-import { RequestOption } from '@app/factory/request-options';
+import {
+	RequestOption,
+	createRequestOption,
+} from '@app/factory/request-options';
 import { ChangeFriendTag, FriendAction, SenderType } from '@app/interface';
 import { AddFriendDto } from '@app/interface/models/request/AddFriendDto';
 import { Users, UsersDocument } from '@app/schemas/user.schema';
@@ -42,7 +45,7 @@ export class FriendsService {
 	) {}
 	async add(source: string, dto: AddFriendDto) {
 		const { tid, msg } = dto;
-		if (await this.hasFriend(source, tid)) {
+		if (await this.hasFriend({ source, target: tid })) {
 			throw new ServiceError(
 				serviceErrorEnum.HAS_FRIEND,
 				HttpStatus.BAD_REQUEST,
@@ -60,25 +63,17 @@ export class FriendsService {
 			},
 		);
 		request.rid = createRid(request);
-		const { exchange, routingKey } = new RequestOption<
-			'request',
-			RequestService,
-			typeof request
-		>({
+		const requestOption = createRequestOption<RequestService>({
 			system: 'request',
-			configService: this.configService,
-			payload: request,
 			fn: 'addRequest',
-		});
-		await this.channel.request({
-			exchange,
-			routingKey,
 			payload: request,
+			configService: this.configService,
 		});
+		await this.channel.request(requestOption);
 		return true;
 	}
 	async remove(source: string, target: string) {
-		if (!(await this.hasFriend(source, target))) {
+		if (!(await this.hasFriend({ source, target }))) {
 			throw new ServiceError(
 				serviceErrorEnum.NOT_HAS_FRIEND,
 				HttpStatus.BAD_REQUEST,
@@ -111,7 +106,7 @@ export class FriendsService {
 		return true;
 	}
 	async updateTag(source: string, dto: ChangeFriendTag) {
-		if (!(await this.hasFriend(source, dto.tid))) {
+		if (!(await this.hasFriend({ source, target: dto.tid }))) {
 			throw new ServiceError(
 				serviceErrorEnum.NOT_HAS_FRIEND,
 				HttpStatus.BAD_REQUEST,
@@ -177,7 +172,13 @@ export class FriendsService {
 		await this.blackListCache.removeTarget(source, target);
 		return true;
 	}
-	async hasFriend(source: string, target: string) {
+	@RabbitRPC({
+		exchange: 'system.call',
+		queue: 'system.call.friend',
+		routingKey: 'friend.has-friend',
+		createQueueIfNotExists: true,
+	})
+	async hasFriend({ source, target }: { source: string; target: string }) {
 		const record = await this.Friend.findOne({
 			source: source,
 			target: target,
