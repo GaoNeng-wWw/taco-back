@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { RedisModule, RedisModuleOptions } from '@liaoliaots/nestjs-redis';
 import { ConfigModule, ConfigService } from '@app/config';
 import { CacheService } from './cache.service';
-import { rootRedisTestModle } from '@app/mock/memory-mongo';
+import { rootRedisTestConfig } from '@app/mock/memory-mongo';
 
 @Global()
 @Module({
@@ -18,7 +18,7 @@ import { rootRedisTestModle } from '@app/mock/memory-mongo';
 				if (process.env.NODE_ENV === 'test') {
 					return {
 						config: {
-							...(await rootRedisTestModle()),
+							...(await rootRedisTestConfig()),
 						},
 					};
 				}

@@ -17,10 +17,10 @@
  */
 export interface ForgetPasswordDto {
 	/**
-	 * @type {string}
+	 * @type {number}
 	 * @memberof ForgetPasswordDto
 	 */
-	tid: string;
+	tid: number;
 	/**
 	 * @type {object}
 	 * @memberof ForgetPasswordDto

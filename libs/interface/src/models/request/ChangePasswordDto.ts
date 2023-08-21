@@ -17,10 +17,10 @@
  */
 export interface ChangePasswordDto {
 	/**
-	 * @type {string}
+	 * @type {number}
 	 * @memberof ChangePasswordDto
 	 */
-	tid: string;
+	tid: number;
 	/**
 	 * @type {string}
 	 * @memberof ChangePasswordDto

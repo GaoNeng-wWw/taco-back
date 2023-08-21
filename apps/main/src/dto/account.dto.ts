@@ -1,10 +1,10 @@
 import {LoginDto, RegisterDto} from '@app/interface';
-import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsObject, IsString } from 'class-validator';
 
 export class LoginDTO implements LoginDto {
 	@IsNotEmpty()
-	@IsString()
-	tid: string;
+	@IsNumber()
+	tid: number;
 	@IsNotEmpty()
 	@IsString()
 	password: string;

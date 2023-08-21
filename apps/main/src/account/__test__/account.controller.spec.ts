@@ -38,20 +38,20 @@ describe('AccountController', () => {
 		expect(controller.resgiter(regData)).resolves.toBe(undefined);
 	});
 	it('login', () => {
-		expect(controller.login({ tid: '123', password: '123' })).resolves.toBe(
+		expect(controller.login({ tid: 123, password: '123' })).resolves.toBe(
 			undefined,
 		);
 	});
 	it('get question', () => {
 		expect(
 			controller.getQuestion({
-				tid: '1',
+				tid: 1,
 			}),
 		).resolves.toBe(undefined);
 	});
 	it('check question', () => {
 		expect(
-			controller.checkAnswer('1', '123', {
+			controller.checkAnswer(1, '123', {
 				question: {
 					answer: 'fake',
 				},
@@ -61,7 +61,7 @@ describe('AccountController', () => {
 	it('change password', () => {
 		expect(
 			controller.changePassword({
-				tid: '1',
+				tid: 1,
 				old_pwd: 'old',
 				new_pwd: 'new',
 			}),
@@ -70,7 +70,7 @@ describe('AccountController', () => {
 	it('forget password', () => {
 		expect(
 			controller.forgetPassword({
-				tid: '1',
+				tid: 1,
 				answer: {
 					...regData['question'],
 				},

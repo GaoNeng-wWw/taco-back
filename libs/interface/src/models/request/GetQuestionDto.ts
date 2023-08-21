@@ -17,8 +17,8 @@
  */
 export interface GetQuestionDto {
 	/**
-	 * @type {string}
+	 * @type {number}
 	 * @memberof GetQuestionDto
 	 */
-	tid: string;
+	tid: number;
 }

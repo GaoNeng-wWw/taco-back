@@ -5,8 +5,8 @@ import { HydratedDocument } from 'mongoose';
 	autoCreate: true,
 })
 export class Users {
-	@Prop({default: '0', required: true, index: true})
-	tid: string;
+	@Prop({default: 0, required: true, index: true, type: ()=>BigInt})
+	tid: number;
 	@Prop()
 	nick: string;
 	@Prop()

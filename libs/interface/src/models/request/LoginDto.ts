@@ -17,10 +17,10 @@
  */
 export interface LoginDto {
 	/**
-	 * @type {string}
+	 * @type {number}
 	 * @memberof LoginDto
 	 */
-	tid: string;
+	tid: number;
 	/**
 	 * @type {string}
 	 * @memberof LoginDto

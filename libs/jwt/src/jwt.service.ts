@@ -12,8 +12,8 @@ export class JwtService {
 		private readonly userModel: Model<UsersDocument>,
 		private readonly jwt: JWTService,
 	) {}
-	async verify(token: string) {
-		return this.jwt.verify(token);
+	async verify<T extends object = any>(token: string) {
+		return this.jwt.verify<T>(token);
 	}
 	async decode<T extends { [key: string]: any } | string>(
 		token: string,

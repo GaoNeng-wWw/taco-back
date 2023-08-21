@@ -17,8 +17,8 @@
  */
 export interface RegisterResponseData {
 	/**
-	 * @type {string}
+	 * @type {number}
 	 * @memberof RegisterResponseData
 	 */
-	tid?: string;
+	tid: number;
 }

@@ -1,26 +1,28 @@
+import { ConfigService } from '@app/config';
+import { ServiceError, serviceErrorEnum } from '@app/errors';
+import {
+	ChangePasswordDto,
+	CheckAnswerDto,
+	ForgetPasswordDto,
+	GetQuestionResponseData,
+	LoginDto,
+	RegisterDto,
+	RegisterResponseData,
+} from '@app/interface';
 import { JwtService } from '@app/jwt';
+import { Questions, QuestionsDocument } from '@app/schemas/querstions.schema';
 import { Users, UsersDocument } from '@app/schemas/user.schema';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import {
-	RegisterDto,
-	LoginDto,
-	RegisterResponseData,
-	GetQuestionResponseData,
-	CheckAnswerDto,
-	ChangePasswordDto,
-	ForgetPasswordDto,
-	Profile,
-} from '@app/interface';
 import { createHash } from 'crypto';
-import { isEmpty } from 'lodash';
-import { ServiceError, serviceErrorEnum } from '@app/errors';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
+import { isEmpty } from 'lodash';
+import { Model } from 'mongoose';
+import ms from 'ms';
 import { Questions, QuestionsDocument } from '@app/schemas/querstions.schema';
 import { ConfigService } from '@app/config';
-
 @Injectable()
 export class AccountService {
 	private ACCOUNT_POOL_NAMESPACE = () => 'ACCOUNT:POOL';
@@ -35,6 +37,101 @@ export class AccountService {
 		private readonly config: ConfigService,
 		@InjectRedis() private readonly redis: Redis,
 	) {}
+	private async createToken(tid: string) {
+		const access_token = await this.createAccessToken(tid);
+		return {
+			access_token,
+			refresh_token: this.createRefreshToken(access_token, tid),
+		};
+	}
+	private async createRefreshToken(access_token: string, tid: string) {
+		const refreshTokenNs = this.REFRESH_TOKEN_NS(tid);
+		const refresh_token_expire = ms(
+			this.config.get<string>(
+				'system.account.token.expire.refresh_token',
+			) ?? '30d',
+		);
+		const refresh_token = await this.jwt.signObject(
+			{ access_token },
+			this.config.get('system.account.token.expire.refresh_token'),
+		);
+		await this.redis.set(refreshTokenNs, refresh_token);
+		await this.redis.setnx(refreshTokenNs, refresh_token_expire);
+		return refresh_token;
+	}
+
+	private async createAccessToken(tid: string) {
+		const ns = this.TOKEN_NAMESPACE(tid);
+		const access_token_expire = ms(
+			this.config.get<string>(
+				'system.account.token.expire.access_token',
+			) ?? '7d',
+		);
+		const access_token = await this.jwt.signObject(
+			tid,
+			this.config.get('system.account.token.expire.access_token'),
+		);
+		await this.redis.set(ns, access_token);
+		await this.redis.setnx(ns, access_token_expire);
+		return access_token;
+	}
+
+	@RabbitRPC({
+		exchange: 'system.call',
+		queue: 'system.call.account',
+		routingKey: 'account.alive',
+		createQueueIfNotExists: true,
+	})
+	async alive({ tid }: { tid: string }) {
+		const ns = this.TOKEN_NAMESPACE(tid);
+		return Boolean(await this.redis.get(ns));
+	}
+	@RabbitRPC({
+		exchange: 'system.call',
+		queue: 'system.call.account',
+		routingKey: 'account.refresh',
+		createQueueIfNotExists: true,
+	})
+	async refresh({
+		refresh_token,
+		renew_refresh_token,
+	}: {
+		refresh_token: string;
+		renew_refresh_token?: boolean;
+	}) {
+		const { access_token } = await this.jwt.decode<{
+			access_token: string;
+		}>(refresh_token);
+		const oldToken = await this.jwt
+			.verify<{ tid: string }>(access_token)
+			.then(() => access_token)
+			.catch(
+				(reason: {
+					name: 'JsonWebTokenError' | 'TokenExpiredError';
+					message: string;
+				}) => {
+					if (reason.name !== 'TokenExpiredError') {
+						throw new ServiceError(
+							serviceErrorEnum.FAIL_TOKEN_INVALIDATE,
+							HttpStatus.BAD_REQUEST,
+						);
+					}
+					return access_token;
+				},
+			);
+		const { tid } = await this.jwt.decode<{ tid: string }>(oldToken);
+		const token = await this.createAccessToken(tid);
+		if (!renew_refresh_token) {
+			return {
+				access_token: token,
+				refresh_token,
+			};
+		}
+		return {
+			access_token: token,
+			refresh_token: await this.createRefreshToken(token, tid),
+		};
+	}
 	async registe(createUserDto: RegisterDto): Promise<RegisterResponseData> {
 		const tid =
 			Number(await this.redis.get(this.ACCOUNT_POOL_NAMESPACE())) + 1;
@@ -56,16 +153,16 @@ export class AccountService {
 		}
 		await this.userModel.insertMany([
 			{
-				tid: tid.toString(),
+				tid: tid,
 				...createUserDto,
 			},
 		]);
 		const question = new this.questions();
 		question.question = createUserDto.question;
-		question.uid = tid.toString();
+		question.uid = tid;
 		await question.save();
 		await this.redis.incrby(this.ACCOUNT_POOL_NAMESPACE(), 1);
-		return { tid: tid.toString() };
+		return { tid: tid };
 	}
 	async login(dto: LoginDto) {
 		dto['password'] = createHash('sha256')
@@ -90,20 +187,9 @@ export class AccountService {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		const ns = this.TOKEN_NAMESPACE(dto.tid);
-		const refreshTokenNs = this.REFRESH_TOKEN_NS(dto.tid);
-		const access_token = await this.jwt.signObject(
-			info,
-			this.config.get('system.account.token.expire.access_token'),
-		);
-		const refresh_token = await this.jwt.signObject(
-			{ access_token },
-			this.config.get('system.account.token.expire.refresh_token'),
-		);
-		await this.redis.set(ns, access_token);
-		await this.redis.set(refreshTokenNs, refresh_token);
-		return { access_token, refreshToken: refresh_token };
+		return this.createToken(dto.tid);
 	}
+
 	async getQuestion(tid: string): Promise<GetQuestionResponseData> {
 		const rawData = await this.questions
 			.findOne({ uid: tid })
@@ -114,7 +200,7 @@ export class AccountService {
 			question: Object.keys(rawData['question'])[0],
 		};
 	}
-	async checkAnswer(tid: string, question_id: string, dto: CheckAnswerDto) {
+	async checkAnswer(tid: number, question_id: string, dto: CheckAnswerDto) {
 		const { question } = await this.questions
 			.findOne(
 				{

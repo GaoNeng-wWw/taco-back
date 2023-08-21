@@ -1,4 +1,4 @@
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule, RedisModuleOptions } from '@liaoliaots/nestjs-redis';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { MongoMemoryServer, MongoMemoryReplSet } from 'mongodb-memory-server';
 import { RedisMemoryServer } from 'redis-memory-server';
@@ -7,7 +7,7 @@ let mongod: MongoMemoryServer;
 let uri: string;
 let server: RedisMemoryServer;
 
-export const rootRedisTestModle = async () => {
+export const rootRedisTestConfig = async () => {
 	server = new RedisMemoryServer({
 		instance: {
 			ip: '127.0.0.1',
@@ -19,6 +19,17 @@ export const rootRedisTestModle = async () => {
 		host: await server.getIp(),
 		port: await server.getPort(),
 	};
+};
+
+export const rootRedisTestModle = async (option: RedisModuleOptions = {}) => {
+	return RedisModule.forRootAsync({
+		useFactory: async () => {
+			return {
+				config: await rootRedisTestConfig(),
+				...option,
+			};
+		},
+	});
 };
 
 export const rootMongooseTestModule = async (

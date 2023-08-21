@@ -6,8 +6,8 @@ import { Document } from 'mongoose';
 	autoIndex: true,
 })
 export class Questions {
-	@Prop()
-	uid: string;
+	@Prop({type: ()=>BigInt})
+	uid: number;
 	@Prop({
 		type: Object
 	})

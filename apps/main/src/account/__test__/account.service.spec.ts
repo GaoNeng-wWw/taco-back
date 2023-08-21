@@ -3,18 +3,28 @@ import { AccountService } from '../account.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtService } from '@app/jwt';
 import { CacheModule } from '@app/cache';
-import { getRedisToken } from '@liaoliaots/nestjs-redis';
-import { rootMongooseTestModule } from '@app/mock/memory-mongo';
+import {
+	RedisModule,
+	RedisModuleOptions,
+	getRedisToken,
+} from '@liaoliaots/nestjs-redis';
+import {
+	rootMongooseTestModule,
+	rootRedisTestConfig,
+	rootRedisTestModle,
+} from '@app/mock/memory-mongo';
 import { Counter, CounterSchema } from '@app/schemas/counter.schema';
 import { Groups, GroupsSchema } from '@app/schemas/group.schema';
 import { Users, UsersSchema } from '@app/schemas/user.schema';
 import { Questions, QuestionsSchema } from '@app/schemas/querstions.schema';
 import { RegisterDto } from '@app/interface';
 import { ConfigService } from '@app/config';
+import { ServiceError } from '@app/errors';
 
 describe('AccountService', () => {
 	let service: AccountService;
 	let module: TestingModule;
+	let v = -1;
 	const fakeRegisteData: RegisterDto = {
 		name: 'Test',
 		password: '123456789Sd!',
@@ -34,6 +44,16 @@ describe('AccountService', () => {
 					provide: JwtService,
 					useValue: {
 						signObject: jest.fn().mockReturnValue(''),
+						decode: jest.fn().mockResolvedValue(''),
+						verify: async () => {
+							if (v == -1) {
+								throw new Error('fail');
+							}
+							if (v == -2) {
+								throw { name: 'TokenExpireError' };
+							}
+							return '';
+						},
 					},
 				},
 				{
@@ -43,6 +63,7 @@ describe('AccountService', () => {
 						get: jest.fn().mockResolvedValue(1),
 						del: jest.fn(),
 						set: jest.fn(),
+						setnx: jest.fn(),
 					},
 				},
 				{
@@ -90,11 +111,11 @@ describe('AccountService', () => {
 		expect(service).toBeDefined();
 	});
 	const loginData = {
-		tid: '2',
+		tid: 2,
 		password: '123456789Sd!',
 	};
 	const failLoginData = {
-		tid: '-1',
+		tid: -1,
 		password: '123456789Sd!',
 	};
 	describe('register', () => {
@@ -181,11 +202,31 @@ describe('AccountService', () => {
 			).rejects.toThrow();
 			return await expect(
 				service.forgetPassword({
-					tid: '-1',
+					tid: -1,
 					answer: null,
 					new_pwd: 'newpwd',
 				}),
 			).rejects.toThrow();
 		});
+	});
+	it('alive', () => {
+		return expect(service.alive({ tid: '1' })).resolves.not.toThrow();
+	});
+	it('refresh token', async () => {
+		try {
+			await service.refresh({ refresh_token: '' });
+		} catch (e) {
+			expect(e).toBeDefined();
+		}
+		v = -2;
+		try {
+			await service.refresh({ refresh_token: '' });
+		} catch (e) {
+			expect(e).toBeDefined();
+		}
+		v = 1;
+		return expect(
+			service.refresh({ refresh_token: '' }),
+		).resolves.not.toThrow();
 	});
 });

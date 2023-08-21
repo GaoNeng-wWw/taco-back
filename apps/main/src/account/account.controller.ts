@@ -25,7 +25,7 @@ export class AccountController {
 	}
 	@Get('check/answer')
 	async checkAnswer(
-		@Query('tid') tid: string,
+		@Query('tid') tid: number,
 		@Query('question_id') question_id,
 		@Body() dto: CheckAnswerDto,
 	) {
